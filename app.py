@@ -2,7 +2,7 @@
 
 # st.set_page_config(
 #     page_title="Financial Fraud Detection",
-#     page_icon="💳",
+#     page_icon="",
 #     layout="wide"
 # )
 
@@ -68,7 +68,7 @@ df = load_data()
 @st.cache_resource
 def load_model():
     return joblib.load(
-        "models/fraud_model.pkl"
+        "models/random_forest_model.pkl"
     )
 
 
