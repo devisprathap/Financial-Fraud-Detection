@@ -11,7 +11,7 @@ app = FastAPI(
 )
 
 # Load trained model
-model = joblib.load("models/fraud_model.pkl")
+model = joblib.load("models/random_forest_model.pkl")
 
 # Load feature columns
 feature_columns = joblib.load("models/feature_columns.pkl")
