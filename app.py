@@ -56,14 +56,8 @@ def load_data():
     return pd.read_csv(
         "data/financial_fraud_synthetic_data.csv"
     )
-
-
-
-try:
-    model = load_model()
-except Exception as e:
-    st.error(f"Model loading error: {e}")
-    st.stop()
+df=load_data()
+   
 
 # ==============================
 # Load Machine Learning Model
