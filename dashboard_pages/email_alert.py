@@ -14,7 +14,7 @@ def send_fraud_email(
 ):
     msg = EmailMessage()
 
-    msg["Subject"] = "🚨 Fraud Transaction Alert"
+    msg["Subject"] = " Fraud Transaction Alert"
     msg["From"] = sender_email
     msg["To"] = receiver_email
 
