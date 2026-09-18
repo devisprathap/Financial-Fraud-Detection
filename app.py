@@ -58,8 +58,12 @@ def load_data():
     )
 
 
-df = load_data()
 
+try:
+    model = load_model()
+except Exception as e:
+    st.error(f"Model loading error: {e}")
+    st.stop()
 
 # ==============================
 # Load Machine Learning Model
