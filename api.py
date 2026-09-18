@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 import pandas as pd
@@ -10,8 +11,8 @@ app = FastAPI(
     version="1.0"
 )
 
-# Load trained model
-model = joblib.load("models/random_forest_model.pkl")
+# Load Gradient Boosting model
+model = joblib.load("models/gradient_boosting_model.pkl")
 
 # Load feature columns
 feature_columns = joblib.load("models/feature_columns.pkl")
@@ -23,6 +24,7 @@ class Transaction(BaseModel):
     MerchantID: int
     TransactionType: str
     Location: str
+    Date: str
 
 
 # Home endpoint
@@ -37,13 +39,29 @@ def home():
 @app.post("/predict")
 def predict(transaction: Transaction):
 
-    # Create DataFrame from API input
+    # Create DataFrame
     data = pd.DataFrame([{
         "Amount": transaction.Amount,
         "MerchantID": transaction.MerchantID,
         "TransactionType": transaction.TransactionType,
-        "Location": transaction.Location
+        "Location": transaction.Location,
+        "Date": transaction.Date
     }])
+
+    # Convert Date to datetime
+    data["Date"] = pd.to_datetime(
+        data["Date"],
+        errors="coerce"
+    )
+
+    # Create the same date features used during training
+    data["TransactionHour"] = data["Date"].dt.hour
+    data["TransactionDay"] = data["Date"].dt.day
+    data["TransactionMonth"] = data["Date"].dt.month
+    data["TransactionDayOfWeek"] = data["Date"].dt.dayofweek
+
+    # Remove original Date column
+    data = data.drop("Date", axis=1)
 
     # One-hot encoding
     data = pd.get_dummies(
