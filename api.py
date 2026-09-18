@@ -77,15 +77,15 @@ def predict(transaction: Transaction):
     )
 
     # Prediction
-    prediction = model.predict(data)[0]
-
-    # Fraud probability
     probability = model.predict_proba(data)[0][1]
 
-    if prediction == 1:
-        result = "Fraud"
-    else:
-        result = "Normal"
+    # Fraud decision threshold
+    threshold = 0.10
+
+    prediction = 1 if probability >= threshold else 0
+
+    result = "Fraud" if prediction == 1 else "Normal"
+   
 
     return {
         "prediction": int(prediction),

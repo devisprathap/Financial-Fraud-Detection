@@ -257,12 +257,13 @@ def show(df, model):
         # Make Prediction
         # ==========================================
 
-        prediction = model.predict(input_data)[0]
+        
+        probability = model.predict_proba(input_data)[0][1]
 
-        probability = model.predict_proba(
-            input_data
-        )[0][1]
+        # Fraud decision threshold
+        threshold = 0.10
 
+        prediction = 1 if probability >= threshold else 0
         # ==========================================
         # Display Result
         # ==========================================
