@@ -1,7 +1,8 @@
+
 import streamlit as st
 import pandas as pd
-import os
 from dashboard_pages.email_alert import send_fraud_email
+
 
 def show(df, model):
 
@@ -35,6 +36,10 @@ def show(df, model):
             value=100
         )
 
+        transaction_date = st.date_input(
+            "Transaction Date"
+        )
+
     with col2:
 
         transaction_type = st.selectbox(
@@ -47,18 +52,38 @@ def show(df, model):
             sorted(df["Location"].unique())
         )
 
+        transaction_hour = st.number_input(
+            "Transaction Hour",
+            min_value=0,
+            max_value=23,
+            value=12
+        )
+
     # ==========================================
     # Prediction
     # ==========================================
 
     if st.button(" Predict Transaction"):
 
+        # Combine selected date and hour
+        transaction_datetime = pd.Timestamp(
+            transaction_date
+        ) + pd.Timedelta(
+            hours=transaction_hour
+        )
+
         # Create input dataframe
         input_data = pd.DataFrame({
             "Amount": [amount],
             "MerchantID": [merchant_id],
             "TransactionType": [transaction_type],
-            "Location": [location]
+            "Location": [location],
+
+            # Same features used during training
+            "TransactionHour": [transaction_datetime.hour],
+            "TransactionDay": [transaction_datetime.day],
+            "TransactionMonth": [transaction_datetime.month],
+            "TransactionDayOfWeek": [transaction_datetime.dayofweek]
         })
 
         # Convert categorical columns
@@ -68,7 +93,7 @@ def show(df, model):
             drop_first=True
         )
 
-        # Make columns match the model's training columns
+        # Make columns match model training columns
         if hasattr(model, "feature_names_in_"):
 
             training_columns = model.feature_names_in_
@@ -93,7 +118,7 @@ def show(df, model):
         # ==========================================
 
         st.subheader(" Prediction Result")
-        
+
         if prediction == 1:
 
             st.error(
@@ -109,33 +134,31 @@ def show(df, model):
                 "This transaction has been classified "
                 "as potentially fraudulent."
             )
-            transaction_details = {
-        "sender_email": st.secrets["EMAIL_ADDRESS"],
-        "recipient_email": st.secrets["ALERT_EMAIL"],
-        "password": st.secrets["EMAIL_APP_PASSWORD"],
-        "amount": amount,
-        "merchant_id": merchant_id,
-        "transaction_type": transaction_type,
-        "location": location,
-        "probability": probability
-    }
+
             try:
-              send_fraud_email(
-                   st.secrets["EMAIL_ADDRESS"],
-                   st.secrets["EMAIL_APP_PASSWORD"],
-                   st.secrets["ALERT_EMAIL"],
-                   amount,
-                   merchant_id,
-                   transaction_type,
-                   location,
-                   probability
+                send_fraud_email(
+                    st.secrets["EMAIL_ADDRESS"],
+                    st.secrets["EMAIL_APP_PASSWORD"],
+                    st.secrets["ALERT_EMAIL"],
+                    amount,
+                    merchant_id,
+                    transaction_type,
+                    location,
+                    probability
                 )
-               
-              st.success("Fraud alert email sent successfully!")
-                
+
+                st.success(
+                    "Fraud alert email sent successfully!"
+                )
+
             except Exception as e:
-                st.error("Unable to send fraud alert email.")
+
+                st.error(
+                    "Unable to send fraud alert email."
+                )
+
                 st.error(str(e))
+
         else:
 
             st.success(
@@ -151,4 +174,3 @@ def show(df, model):
                 "The transaction has been classified "
                 "as potentially normal."
             )
-
