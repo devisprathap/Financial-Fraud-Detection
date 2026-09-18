@@ -134,7 +134,16 @@ from sklearn.metrics import (
 # ==========================================
 
 df = pd.read_csv("data/financial_fraud_synthetic_data.csv")
+# Convert Date into useful numerical features
+df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
 
+df["TransactionHour"] = df["Date"].dt.hour
+df["TransactionDay"] = df["Date"].dt.day
+df["TransactionMonth"] = df["Date"].dt.month
+df["TransactionDayOfWeek"] = df["Date"].dt.dayofweek
+
+# Remove original text date
+df = df.drop("Date", axis=1)
 
 # ==========================================
 # 2. Preprocessing
