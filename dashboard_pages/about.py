@@ -122,7 +122,8 @@ def show():
         • Logistic Regression
 
         • Random Forest
-
+        
+        • Gradient boosting
         SMOTE is used to address the class imbalance between
         normal and fraudulent transactions.
         """
