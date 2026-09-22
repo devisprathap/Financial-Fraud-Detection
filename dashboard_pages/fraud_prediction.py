@@ -261,7 +261,7 @@ def show(df, model):
         probability = model.predict_proba(input_data)[0][1]
 
         # Fraud decision threshold
-        threshold = 0.10
+        threshold = 0.30
 
         prediction = 1 if probability >= threshold else 0
         # ==========================================
